@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Konverter Resolusi Gambar</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="file"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            display: none;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Konverter Resolusi Gambar</h2>
+        
+        <div class="form-group">
+            <label for="uploadImage">Pilih Gambar:</label>
+            <input type="file" id="uploadImage" accept="image/*">
+        </div>
+
+        <div class="preview-container">
+            <img id="imagePreview" alt="Pratinjau Gambar">
+        </div>
+
+        <div class="form-group">
+            <label for="widthInput">Lebar Baru (px):</label>
+            <input type="number" id="widthInput" placeholder="Contoh: 800" disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="heightInput">Tinggi Baru (px):</label>
+            <input type="number" id="heightInput" placeholder="Contoh: 600" disabled>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="aspectRatio" checked disabled>
+            <label for="aspectRatio" style="margin-bottom: 0; font-weight: normal;">Pertahankan Rasio Aspek (Proposional)</label>
+        </div>
+
+        <div class="form-group">
+            <label for="formatSelect">Format Output:</label>
+            <select id="formatSelect" disabled>
+                <option value="image/jpeg">JPG</option>
+                <option value="image/png">PNG</option>
+                <option value="image/webp">WebP</option>
+            </select>
+        </div>
+
+        <button id="convertBtn" disabled>Konversi & Unduh Gambar</button>
+    </div>
+
+    <script>
+        const uploadImage = document.getElementById('uploadImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const aspectRatio = document.getElementById('aspectRatio');
+        const formatSelect = document.getElementById('formatSelect');
+        const convertBtn = document.getElementById('convertBtn');
+
+        let originalImage = new Image();
+        let originalWidth = 0;
+        let originalHeight = 0;
+
+        uploadImage.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                originalImage.src = event.target.result;
+                originalImage.onload = function() {
+                    originalWidth = originalImage.width;
+                    originalHeight = originalImage.height;
+
+                    // Set default value to current dimensions
+                    widthInput.value = originalWidth;
+                    heightInput.value = originalHeight;
+
+                    // Show preview
+                    imagePreview.src = originalImage.src;
+                    imagePreview.style.display = 'block';
+
+                    // Enable inputs
+                    widthInput.disabled = false;
+                    heightInput.disabled = false;
+                    aspectRatio.disabled = false;
+                    formatSelect.disabled = false;
+                    convertBtn.disabled = false;
+                }
+            }
+            reader.readAsDataURL(file);
+        });
+
+        widthInput.addEventListener('input', function() {
+            if (aspectRatio.checked && originalWidth > 0) {
+                const currentWidth = parseInt(this.value) || 0;
+                const calculatedHeight = Math.round((currentWidth / originalWidth) * originalHeight);
+                heightInput.value = calculatedHeight;
+            }
+        });
+
+        heightInput.addEventListener('input', function() {
+            if (aspectRatio.checked && originalHeight > 0) {
+                const currentHeight = parseInt(this.value) || 0;
+                const calculatedWidth = Math.round((currentHeight / originalHeight) * originalWidth);
+                widthInput.value = calculatedWidth;
+            }
+        });
+
+        convertBtn.addEventListener('click', function() {
+            const targetWidth = parseInt(widthInput.value);
+            const targetHeight = parseInt(heightInput.value);
+            const selectedFormat = formatSelect.value;
+
+            if (!targetWidth || !targetHeight) {
+                alert('Mohon masukkan ukuran lebar dan tinggi yang valid!');
+                return;
+            }
+
+            // Create canvas for resizing
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Draw resized image
+            ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
+
+            // Convert and trigger download
+            canvas.toBlob(function(blob) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                
+                // Generate filename based on format
+                const extension = selectedFormat.split('/')[1];
+                link.download = `converted-image.${extension}`;
+                
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }, selectedFormat, 0.9); // 0.9 quality for JPEG/WebP
+        });
+    </script>
+
+</body>
+</html>
