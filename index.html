@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Konverter Resolusi Gambar</title>
+    <title>Convert24 - Web Konverter Resolusi Gambar</title>
+    
+    <!-- FAVICON (Logo di samping HTTPS / Tab Browser) -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+
     <!-- Font Inter & Remix Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,7 +68,7 @@
 
         .header h2 {
             margin: 0 0 8px 0;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 700;
             background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
             -webkit-background-clip: text;
@@ -76,7 +81,7 @@
             font-size: 0.9rem;
         }
 
-        /* Drag & Drop Dropzone Custom UI */
+        /* Drag & Drop Zone UI */
         .file-upload-zone {
             border: 2px dashed var(--border);
             border-radius: 12px;
@@ -210,7 +215,7 @@
             font-weight: 500;
         }
 
-        /* Modern Primary Button */
+        /* Modern Button */
         button {
             width: 100%;
             background: var(--primary);
@@ -250,14 +255,14 @@
 
     <div class="container">
         <div class="header">
-            <h2>Konverter Gambar</h2>
+            <h2>Convert24</h2>
             <p>Ubah ukuran dan format gambar dengan cepat</p>
         </div>
 
         <div class="file-upload-zone" id="dropZone">
             <i class="ri-upload-cloud-2-line"></i>
             <p>Klik atau letakkan gambar di sini</p>
-            <span>PNG, JPG, WebP (Maks. Resolusi Bebas)</span>
+            <span>PNG, JPG, WebP</span>
             <input type="file" id="uploadImage" accept="image/*">
         </div>
 
@@ -323,15 +328,12 @@
                     originalWidth = originalImage.width;
                     originalHeight = originalImage.height;
 
-                    // Set default value to current dimensions
                     widthInput.value = originalWidth;
                     heightInput.value = originalHeight;
 
-                    // Show preview
                     imagePreview.src = originalImage.src;
                     previewWrapper.style.display = 'block';
 
-                    // Enable inputs
                     widthInput.disabled = false;
                     heightInput.disabled = false;
                     aspectRatio.disabled = false;
@@ -368,27 +370,23 @@
                 return;
             }
 
-            // Create canvas for resizing
             const canvas = document.createElement('canvas');
             canvas.width = targetWidth;
             canvas.height = targetHeight;
             const ctx = canvas.getContext('2d');
 
-            // Draw resized image
             ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
 
-            // Convert and trigger download
             canvas.toBlob(function(blob) {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 
-                // Generate filename based on format
                 const extension = selectedFormat.split('/')[1];
                 link.download = `converted-image.${extension}`;
                 
                 link.click();
                 URL.revokeObjectURL(link.href);
-            }, selectedFormat, 0.9); // 0.9 quality for JPEG/WebP
+            }, selectedFormat, 0.9);
         });
     </script>
 
