@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Convert24 - Web Konverter Resolusi Gambar</title>
     
-    <!-- FAVICON (Logo di samping HTTPS / Tab Browser) -->
+    <!-- FAVICON -->
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="shortcut icon" type="image/png" href="logo.png">
 
@@ -262,7 +262,7 @@
         <div class="file-upload-zone" id="dropZone">
             <i class="ri-upload-cloud-2-line"></i>
             <p>Klik atau letakkan gambar di sini</p>
-            <span>PNG, JPG, WebP</span>
+            <span>JPG, PNG, WebP</span>
             <input type="file" id="uploadImage" accept="image/*">
         </div>
 
@@ -292,7 +292,7 @@
         <div class="form-group">
             <label for="formatSelect">Format Output</label>
             <select id="formatSelect" disabled>
-                <option value="image/jpeg">JPG / JPEG</option>
+                <option value="image/jpeg">JPG</option>
                 <option value="image/png">PNG</option>
                 <option value="image/webp">WEBP</option>
             </select>
@@ -305,6 +305,7 @@
 
     <script>
         const uploadImage = document.getElementById('uploadImage');
+        const dropZone = document.getElementById('dropZone');
         const imagePreview = document.getElementById('imagePreview');
         const previewWrapper = document.getElementById('previewWrapper');
         const widthInput = document.getElementById('widthInput');
@@ -317,9 +318,12 @@
         let originalWidth = 0;
         let originalHeight = 0;
 
-        uploadImage.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // Helper untuk memuat file gambar
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Harap unggah file gambar yang valid (JPG, PNG, WebP)!');
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -342,8 +346,38 @@
                 }
             }
             reader.readAsDataURL(file);
+        }
+
+        // Event listener input file standar
+        uploadImage.addEventListener('change', function(e) {
+            handleFile(e.target.files[0]);
         });
 
+        // Fitur Drag and Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+            dropZone.style.background = 'rgba(99, 102, 241, 0.1)';
+        });
+
+        ['dragleave', 'dragend'].forEach(type => {
+            dropZone.addEventListener(type, () => {
+                dropZone.style.borderColor = 'var(--border)';
+                dropZone.style.background = 'rgba(30, 41, 59, 0.3)';
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border)';
+            dropZone.style.background = 'rgba(30, 41, 59, 0.3)';
+            if (e.dataTransfer.files.length) {
+                uploadImage.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Menjaga Rasio Aspek
         widthInput.addEventListener('input', function() {
             if (aspectRatio.checked && originalWidth > 0) {
                 const currentWidth = parseInt(this.value) || 0;
@@ -360,12 +394,13 @@
             }
         });
 
+        // Proses Konversi & Unduh
         convertBtn.addEventListener('click', function() {
             const targetWidth = parseInt(widthInput.value);
             const targetHeight = parseInt(heightInput.value);
             const selectedFormat = formatSelect.value;
 
-            if (!targetWidth || !targetHeight) {
+            if (!targetWidth || !targetHeight || targetWidth <= 0 || targetHeight <= 0) {
                 alert('Mohon masukkan ukuran lebar dan tinggi yang valid!');
                 return;
             }
@@ -375,18 +410,29 @@
             canvas.height = targetHeight;
             const ctx = canvas.getContext('2d');
 
+            // Jika mengonversi ke JPG, beri latar belakang putih agar PNG transparan tidak hitam
+            if (selectedFormat === 'image/jpeg') {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, targetWidth, targetHeight);
+            }
+
             ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
 
             canvas.toBlob(function(blob) {
+                if (!blob) return;
+
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 
-                const extension = selectedFormat.split('/')[1];
-                link.download = `converted-image.${extension}`;
+                // Memastikan ekstensinya ditulis .jpg
+                let extension = selectedFormat.split('/')[1];
+                if (extension === 'jpeg') extension = 'jpg';
                 
+                link.download = `converted-image.${extension}`;
                 link.click();
-                URL.revokeObjectURL(link.href);
-            }, selectedFormat, 0.9);
+                
+                setTimeout(() => URL.revokeObjectURL(link.href), 100);
+            }, selectedFormat, 0.92);
         });
     </script>
 
