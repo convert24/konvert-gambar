@@ -4,40 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Konverter Resolusi Gambar</title>
+    <!-- Font Inter & Remix Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f3f4f6;
-            --card-bg: #ffffff;
-            --text: #1f2937;
+            --bg-main: #0b0f17;
+            --bg-card: #151c28;
+            --bg-input: #1e293b;
+            --border: #334155;
+            --border-hover: #475569;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 24px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
         }
 
         .container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 36px;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 500px;
+            max-width: 540px;
+            backdrop-filter: blur(12px);
         }
 
-        h2 {
-            margin-top: 0;
+        .header {
             text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Drag & Drop Dropzone Custom UI */
+        .file-upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 28px 16px;
+            text-align: center;
+            background: rgba(30, 41, 59, 0.3);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-upload-zone i {
+            font-size: 2rem;
             color: var(--primary);
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .file-upload-zone p {
+            margin: 0;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .file-upload-zone span {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Preview Container */
+        .preview-container {
+            margin-bottom: 24px;
+            display: none;
+            position: relative;
+        }
+
+        .preview-container img {
+            width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #020617;
+            border: 1px solid var(--border);
+            padding: 8px;
+        }
+
+        /* Form Controls */
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
         .form-group {
@@ -47,109 +152,156 @@
         label {
             display: block;
             margin-bottom: 8px;
+            font-size: 0.85rem;
             font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        input[type="file"], input[type="number"], select {
+        input[type="number"], select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 14px;
+            padding: 12px 14px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
         }
 
+        input[type="number"]:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        input[type="number"]:disabled, select:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: var(--border);
+        }
+
+        /* Custom Checkbox */
         .checkbox-group {
             display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-input);
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Modern Primary Button */
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px 0 var(--primary-glow);
+            display: flex;
+            justify-content: center;
             align-items: center;
             gap: 8px;
         }
 
-        .checkbox-group input {
-            width: auto;
-        }
-
-        button {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
+        button:hover:not(:disabled) {
             background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         button:disabled {
-            background-color: #9ca3af;
+            background-color: var(--border);
+            color: var(--text-muted);
+            box-shadow: none;
             cursor: not-allowed;
-        }
-
-        .preview-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .preview-container img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-            display: none;
-            margin: 0 auto;
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Konverter Resolusi Gambar</h2>
-        
-        <div class="form-group">
-            <label for="uploadImage">Pilih Gambar:</label>
+        <div class="header">
+            <h2>Konverter Gambar</h2>
+            <p>Ubah ukuran dan format gambar dengan cepat</p>
+        </div>
+
+        <div class="file-upload-zone" id="dropZone">
+            <i class="ri-upload-cloud-2-line"></i>
+            <p>Klik atau letakkan gambar di sini</p>
+            <span>PNG, JPG, WebP (Maks. Resolusi Bebas)</span>
             <input type="file" id="uploadImage" accept="image/*">
         </div>
 
-        <div class="preview-container">
+        <div class="preview-container" id="previewWrapper">
             <img id="imagePreview" alt="Pratinjau Gambar">
         </div>
 
-        <div class="form-group">
-            <label for="widthInput">Lebar Baru (px):</label>
-            <input type="number" id="widthInput" placeholder="Contoh: 800" disabled>
+        <div class="grid-inputs">
+            <div class="form-group">
+                <label for="widthInput">Lebar (px)</label>
+                <input type="number" id="widthInput" placeholder="Lebar" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="heightInput">Tinggi (px)</label>
+                <input type="number" id="heightInput" placeholder="Tinggi" disabled>
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="heightInput">Tinggi Baru (px):</label>
-            <input type="number" id="heightInput" placeholder="Contoh: 600" disabled>
-        </div>
-
-        <div class="form-group checkbox-group">
-            <input type="checkbox" id="aspectRatio" checked disabled>
-            <label for="aspectRatio" style="margin-bottom: 0; font-weight: normal;">Pertahankan Rasio Aspek (Proposional)</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="aspectRatio" checked disabled>
+                <label for="aspectRatio">Pertahankan Rasio Aspek</label>
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="formatSelect">Format Output:</label>
+            <label for="formatSelect">Format Output</label>
             <select id="formatSelect" disabled>
-                <option value="image/jpeg">JPG</option>
+                <option value="image/jpeg">JPG / JPEG</option>
                 <option value="image/png">PNG</option>
-                <option value="image/webp">WebP</option>
+                <option value="image/webp">WEBP</option>
             </select>
         </div>
 
-        <button id="convertBtn" disabled>Konversi & Unduh Gambar</button>
+        <button id="convertBtn" disabled>
+            <i class="ri-download-2-line"></i> Konversi & Unduh
+        </button>
     </div>
 
     <script>
         const uploadImage = document.getElementById('uploadImage');
         const imagePreview = document.getElementById('imagePreview');
+        const previewWrapper = document.getElementById('previewWrapper');
         const widthInput = document.getElementById('widthInput');
         const heightInput = document.getElementById('heightInput');
         const aspectRatio = document.getElementById('aspectRatio');
@@ -177,7 +329,7 @@
 
                     // Show preview
                     imagePreview.src = originalImage.src;
-                    imagePreview.style.display = 'block';
+                    previewWrapper.style.display = 'block';
 
                     // Enable inputs
                     widthInput.disabled = false;
